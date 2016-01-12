@@ -30,15 +30,12 @@ package org.agmip.ui.workbench.modules.cropmodel.packaging.listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
-import org.netbeans.api.project.Project;
+import org.agmip.ui.workbench.modules.cropmodel.project.providers.GrandCentral;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
 
@@ -52,13 +49,14 @@ import org.openide.windows.WindowManager;
 @Messages("CTL_SwitchToPackagingRole=Packaging")
 public final class SwitchToPackagingRole implements ActionListener {
     private static final Logger LOG = Logger.getLogger("Packaging");
+    private final GrandCentral central = GrandCentral.getInstance();
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         WindowManager.getDefault().setRole("package");
         LOG.info("Looking for projects...");
-        
-        Lookup.getDefault().lookupAll(RIACropModelDataset.class).stream().forEach((_item) -> {
-            LOG.log(Level.INFO, "Found a project.");
+        central.getLookup().lookupAll(RIACropModelDataset.class).stream().forEach((dataset) -> {
+            LOG.log(Level.INFO, "Found project: [{0}]", dataset.getProjectDirectory().getName());
         });
     }
 }
