@@ -29,10 +29,11 @@
 package org.agmip.ui.workbench.modules.cropmodel.project.listeners;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.logging.Logger;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
+import org.agmip.ui.workbench.modules.cropmodel.project.providers.GrandCentral;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -43,32 +44,43 @@ import org.openide.util.Utilities;
  * @author Christopher Villalobos <cvillalobos@ufl.edu>
  */
 public class RIACropModelSelectionListener implements LookupListener {
+
     private Lookup.Result<RIACropModelDataset> results = null;
     private static final Logger LOG = Logger.getLogger(RIACropModelSelectionListener.class.getName());
+
+    @SuppressWarnings("LeakingThisInConstructor")
     public RIACropModelSelectionListener() {
         results = Utilities.actionsGlobalContext().lookupResult(RIACropModelDataset.class);
         results.addLookupListener(this);
     }
-    
+
     public void unload() {
         results.removeLookupListener(this);
     }
-    
+
     @Override
     public void resultChanged(LookupEvent ev) {
-       Collection<? extends RIACropModelDataset> events = results.allInstances();
-       StringBuilder logText = new StringBuilder("Projects selected:");
-       if (! events.isEmpty()) {
-           for (Iterator<? extends RIACropModelDataset> iterator = events.iterator(); iterator.hasNext();) {
-               RIACropModelDataset next = iterator.next();
-               logText.append(" [");
-               logText.append(ProjectUtils.getInformation(next));
-               logText.append("] ");
-           }
-       } else {
-           logText.append(" None");
-       }
-       LOG.info(logText.toString());
+        GrandCentral central = GrandCentral.getInstance();
+        if (central == null) {
+            LOG.severe("Cannot find instance of GrandCentral");
+            return;
+        }
+        Collection<? extends RIACropModelDataset> events = results.allInstances();
+        StringBuilder logText = new StringBuilder("Projects selected:");
+        if (!events.isEmpty()) {
+            central.removeAll(RIACropModelDataset.class);
+            events.stream().forEach((next) -> {
+                logText.append(" [");
+                logText.append(ProjectUtils.getInformation(next).getDisplayName());
+                logText.append("] ");
+                central.add(next);
+            });
+        } else if (OpenProjects.getDefault().getOpenProjects().length == 0) {
+            central.removeAll(RIACropModelDataset.class);
+            logText.append("None [All Closed]");
+        } else {
+            logText.append(" None");
+        }
+        LOG.info(logText.toString());
     }
-    
 }

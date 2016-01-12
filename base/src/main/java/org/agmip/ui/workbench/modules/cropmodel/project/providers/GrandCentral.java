@@ -28,8 +28,10 @@
  */
 package org.agmip.ui.workbench.modules.cropmodel.project.providers;
 
+import org.agmip.ui.workbench.modules.cropmodel.project.listeners.RIACropModelSelectionListener;
 import org.openide.util.ContextGlobalProvider;
 import org.openide.util.Lookup;
+import org.openide.util.LookupListener;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ServiceProvider;
@@ -43,14 +45,31 @@ import org.openide.util.lookup.ServiceProvider;
 public class GrandCentral implements ContextGlobalProvider {
     private final InstanceContent content = new InstanceContent();
     private final Lookup lookup = new AbstractLookup(content);
+    private final LookupListener datasetListener = new RIACropModelSelectionListener();
+    
     public GrandCentral(){};
     
     public void add(Object item) {
         content.add(item);
     }
     
+    public void addOnce(Object item) {
+        content.remove(item);
+        content.add(item);
+    }
+    
     public void remove(Object item) {
         content.remove(item);
+    }
+    
+    public <T> void removeAll(Class<T> clazz) {
+        lookup.lookupAll(clazz).stream().forEach((dataset) -> {
+            content.remove(dataset);
+        });
+    }
+    
+    public Lookup getLookup() {
+        return this.lookup;
     }
     
     public static GrandCentral getInstance() {

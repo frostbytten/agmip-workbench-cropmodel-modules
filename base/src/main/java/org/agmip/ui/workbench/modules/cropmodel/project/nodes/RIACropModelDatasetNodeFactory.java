@@ -34,7 +34,6 @@ import java.util.Comparator;
 import java.util.List;
 import javax.swing.event.ChangeListener;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
-import org.agmip.ui.workbench.modules.cropmodel.project.providers.GrandCentral;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
@@ -98,7 +97,7 @@ public class RIACropModelDatasetNodeFactory implements NodeFactory {
 
         @Override
         public Node node(Node key) {
-            FilterNode n = new FilterNode(key, key.getChildren(), Lookups.singleton(this.dataset));
+            FilterNode n = new FilterNode(key, null, Lookups.singleton(this.dataset));
             return n;
         }
 
