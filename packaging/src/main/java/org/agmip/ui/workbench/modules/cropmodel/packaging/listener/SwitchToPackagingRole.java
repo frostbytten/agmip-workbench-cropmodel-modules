@@ -33,9 +33,10 @@ import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
-import org.agmip.ui.workbench.modules.cropmodel.project.providers.GrandCentral;
+import org.agmip.ui.workbench.modules.cropmodel.project.lookup.RIACropModelDatasetSelectionLookup;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
 
@@ -48,15 +49,14 @@ import org.openide.windows.WindowManager;
 )
 @Messages("CTL_SwitchToPackagingRole=Packaging")
 public final class SwitchToPackagingRole implements ActionListener {
+
     private static final Logger LOG = Logger.getLogger("Packaging");
-    private final GrandCentral central = GrandCentral.getInstance();
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        WindowManager.getDefault().setRole("package");
-        LOG.info("Looking for projects...");
-        central.getLookup().lookupAll(RIACropModelDataset.class).stream().forEach((dataset) -> {
-            LOG.log(Level.INFO, "Found project: [{0}]", dataset.getProjectDirectory().getName());
-        });
+        String currentRole = WindowManager.getDefault().getRole();
+        if (currentRole == null || ! currentRole.equals("package")) {
+            WindowManager.getDefault().setRole("package");
+        }
     }
 }

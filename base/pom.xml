@@ -28,14 +28,8 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.agmip.ui.workbench.modules.cropmodel.project</publicPackage>
-                        <publicPackage>org.agmip.ui.workbench.modules.cropmodel.project.providers</publicPackage>
+                        <publicPackage>org.agmip.ui.workbench.modules.cropmodel.project.lookup</publicPackage>
                     </publicPackages>
-                    <moduleDependencies>
-                        <dependency>
-                            <id>org.netbeans.api:org-openide-windows</id>
-                            <type>impl</type>
-                        </dependency>
-                    </moduleDependencies> 
                 </configuration>
             </plugin>
             <plugin>

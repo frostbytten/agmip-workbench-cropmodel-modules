@@ -26,7 +26,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.agmip.ui.workbench.modules.cropmodel.workflow;
+package org.agmip.ui.workbench.modules.cropmodel.workflow.ui;
 
 import java.awt.FlowLayout;
 import javax.swing.Action;
@@ -51,15 +51,15 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "output", openAtStartup = true, position = 333)
 @ActionID(category = "Window", id = "org.agmip.ui.workbench.modules.cropmodel.workflow.RIAWorkflowControlTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window", position = 333)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_RIAWorkflowControlAction",
         preferredID = "RIAWorkflowControlTopComponent"
 )
 @Messages({
-    "CTL_RIAWorkflowControlAction=RIAWorkflowControl",
+    "CTL_RIAWorkflowControlAction=Workflow",
     "CTL_RIAWorkflowControlTopComponent=Workflow",
     "HINT_RIAWorkflowControlTopComponent=This is a Workflow control window"
 })
