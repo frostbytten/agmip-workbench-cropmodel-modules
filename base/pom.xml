@@ -29,6 +29,8 @@
                     <publicPackages>
                         <publicPackage>org.agmip.ui.workbench.modules.cropmodel.project</publicPackage>
                         <publicPackage>org.agmip.ui.workbench.modules.cropmodel.project.lookup</publicPackage>
+                        <publicPackage>org.agmip.cropmodel.dataset</publicPackage>
+                        <publicPackage>org.agmip.cropmodel.filetype</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

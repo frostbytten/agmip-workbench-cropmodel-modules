@@ -28,7 +28,6 @@
  */
 package org.agmip.ui.workbench.modules.cropmodel.packaging.ui;
 
-import java.util.Collection;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
 import org.agmip.ui.workbench.modules.cropmodel.project.lookup.RIACropModelDatasetSelectionLookup;
 import org.netbeans.api.project.ProjectUtils;
@@ -141,16 +140,17 @@ public final class RIACropModelDatasetActionsTopComponent extends TopComponent i
 
     @Override
     public void resultChanged(LookupEvent ev) {
-        StringBuilder sb = new StringBuilder("Selected projects: ");
+        StringBuilder sb = new StringBuilder("<html>Project Details: ");
 
         if (!selectedDatasets.allInstances().isEmpty()) {
             selectedDatasets.allInstances().stream().forEach((next) -> {
                 sb.append(ProjectUtils.getInformation(next).getDisplayName());
-                sb.append(" ");
+                sb.append(next.getDataset().datasetStatisticsHTML());
             });
         } else {
             sb.append("None");
         }
+        sb.append("</html>");
         jLabel1.setText(sb.toString());
     }
 }

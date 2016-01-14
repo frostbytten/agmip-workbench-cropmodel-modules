@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
 import org.netbeans.api.project.Project;
@@ -51,6 +53,7 @@ import org.openide.util.lookup.Lookups;
  */
 @NodeFactory.Registration(projectType = "agmip-workbench-cropmodel-riadataset", position = 10)
 public class RIACropModelDatasetNodeFactory implements NodeFactory {
+    private final static Logger LOG = Logger.getLogger(RIACropModelDatasetNodeFactory.class.getName());
 
     @Override
     public NodeList<?> createNodes(Project p) {
@@ -73,8 +76,10 @@ public class RIACropModelDatasetNodeFactory implements NodeFactory {
             if (folder != null) {
                 for (FileObject child : folder.getChildren()) {
                     try {
-                        Node childNode = DataObject.find(child).getNodeDelegate();
-                        result.add(childNode);
+                        if (! child.getName().startsWith(".")) {
+                            Node childNode = DataObject.find(child).getNodeDelegate();
+                            result.add(childNode);
+                        }
                     } catch (DataObjectNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -108,5 +113,4 @@ public class RIACropModelDatasetNodeFactory implements NodeFactory {
         public void removeNotify() {}
         
     }
-    
 }

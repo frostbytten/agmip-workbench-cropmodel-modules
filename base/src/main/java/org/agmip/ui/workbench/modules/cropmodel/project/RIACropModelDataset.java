@@ -29,9 +29,12 @@
 package org.agmip.ui.workbench.modules.cropmodel.project;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.agmip.cropmodel.dataset.CropModelDataset;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -39,6 +42,7 @@ import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 
 
@@ -51,12 +55,16 @@ public class RIACropModelDataset implements Project {
     
     private final FileObject datasetDir;
     private final ProjectState state;
+    private final CropModelDataset def;
     private Lookup lookup;
 
 
     public RIACropModelDataset(FileObject dir, ProjectState state) {
         this.datasetDir = dir;
         this.state = state;
+        this.def = new CropModelDataset();
+        Path path = Utilities.toFile(dir.toURI()).toPath();
+        this.def.identifyDatasetFiles(path);
     }
 
     @Override
@@ -74,7 +82,11 @@ public class RIACropModelDataset implements Project {
         }
         return this.lookup;
     }
-
+    
+    public CropModelDataset getDataset() {
+        return def;
+    }
+    
     // Inner classes
     private final class Info implements ProjectInformation {
 
