@@ -29,10 +29,18 @@
 package org.agmip.ui.workbench.modules.cropmodel.project.nodes;
 
 import java.awt.Image;
+import java.io.File;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.spi.project.ui.support.NodeFactorySupport;
+import org.netbeans.api.queries.VisibilityQuery;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+
+import org.openide.loaders.DataObject;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
@@ -43,13 +51,15 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author Christopher Villalobos <cvillalobos@ufl.edu>
  */
-public class RIACropModelDatasetNode extends FilterNode  {
+public class RIACropModelDatasetNode extends FilterNode {
+
     private final RIACropModelDataset dataset;
     private final ProjectInformation info;
 
     public RIACropModelDatasetNode(Node node, RIACropModelDataset dataset) {
-        super(node, 
-                NodeFactorySupport.createCompositeChildren(dataset, "Projects/agmip-workbench-cropmodel-riadataset"),
+        super(node,
+                new FilteredChildren(node, dataset),
+                //NodeFactorySupport.createCompositeChildren(dataset, "Projects/agmip-workbench-cropmodel-riadataset"),
                 new ProxyLookup(Lookups.singleton(dataset), node.getLookup()));
         this.dataset = dataset;
         this.info = ProjectUtils.getInformation(dataset);
@@ -74,5 +84,47 @@ public class RIACropModelDatasetNode extends FilterNode  {
     public Image getOpenedIcon(int type) {
         return getIcon(type);
     }
-    
+
+    static class FilteredChildren extends FilterNode.Children {
+
+        private final RIACropModelDataset dataset;
+
+        public FilteredChildren(Node or, RIACropModelDataset dataset) {
+            super(or);
+            this.dataset = dataset;
+        }
+
+        @Override
+        protected Node copyNode(Node node) {
+            return new FilteredNode(node, dataset);
+        }
+
+        @Override
+        protected Node[] createNodes(Node key) {
+            List<Node> result = new ArrayList<>();
+            for (Node node : super.createNodes(key)) {
+                FileObject fileObject = node.getLookup().lookup(FileObject.class);
+                if (fileObject != null && VisibilityQuery.getDefault().isVisible(fileObject)) {
+                    result.add(node);
+                }
+            }
+
+            return result.toArray(new Node[result.size()]);
+
+        }
+    }
+
+    static class FilteredNode extends FilterNode {
+
+        private final RIACropModelDataset dataset;
+
+        public FilteredNode(Node node, RIACropModelDataset dataset) {
+            super(node,
+                    new FilteredChildren(node, dataset),
+                    //NodeFactorySupport.createCompositeChildren(dataset, "Projects/agmip-workbench-cropmodel-riadataset"),
+                    new ProxyLookup(Lookups.singleton(dataset), node.getLookup()));
+            this.dataset = dataset;
+        }
+
+    }
 }

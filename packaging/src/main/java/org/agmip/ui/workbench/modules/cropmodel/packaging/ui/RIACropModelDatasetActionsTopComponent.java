@@ -28,8 +28,19 @@
  */
 package org.agmip.ui.workbench.modules.cropmodel.packaging.ui;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import javax.swing.SwingWorker;
 import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
 import org.agmip.ui.workbench.modules.cropmodel.project.lookup.RIACropModelDatasetSelectionLookup;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -37,8 +48,11 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.IOColorLines;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /**
@@ -68,6 +82,7 @@ import org.openide.windows.WindowManager;
 public final class RIACropModelDatasetActionsTopComponent extends TopComponent implements LookupListener {
 
     private final Lookup.Result<RIACropModelDataset> selectedDatasets;
+    private final DateFormat fmt = new SimpleDateFormat("EEE MMM d HH:mm:ss zz YYYY", Locale.getDefault()); 
 
     public RIACropModelDatasetActionsTopComponent() {
         initComponents();
@@ -98,8 +113,14 @@ public final class RIACropModelDatasetActionsTopComponent extends TopComponent i
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jToolBar1 = new javax.swing.JToolBar();
+        btnValidateDataset = new javax.swing.JButton();
+        btnPackageDataset = new javax.swing.JButton();
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(RIACropModelDatasetActionsTopComponent.class, "RIACropModelDatasetActionsTopComponent.jButton1.text")); // NOI18N
 
         setLayout(new java.awt.BorderLayout());
 
@@ -109,12 +130,85 @@ public final class RIACropModelDatasetActionsTopComponent extends TopComponent i
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(RIACropModelDatasetActionsTopComponent.class, "RIACropModelDatasetActionsTopComponent.jLabel1.text")); // NOI18N
         jPanel1.add(jLabel1, java.awt.BorderLayout.CENTER);
 
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnValidateDataset, org.openide.util.NbBundle.getMessage(RIACropModelDatasetActionsTopComponent.class, "RIACropModelDatasetActionsTopComponent.btnValidateDataset.text")); // NOI18N
+        btnValidateDataset.setFocusable(false);
+        btnValidateDataset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnValidateDataset.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnValidateDataset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnValidateDatasetActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnValidateDataset);
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnPackageDataset, org.openide.util.NbBundle.getMessage(RIACropModelDatasetActionsTopComponent.class, "RIACropModelDatasetActionsTopComponent.btnPackageDataset.text")); // NOI18N
+        btnPackageDataset.setFocusable(false);
+        btnPackageDataset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnPackageDataset.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnPackageDataset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPackageDatasetActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnPackageDataset);
+
+        jPanel1.add(jToolBar1, java.awt.BorderLayout.PAGE_END);
+
         add(jPanel1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnValidateDatasetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnValidateDatasetActionPerformed
+        // TODO add your handling code here:
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                ProgressHandle handle = ProgressHandleFactory.createHandle("Validating dataset");
+                handle.start();
+                selectedDatasets.allInstances().stream().distinct().forEach((dataset) -> {
+                    // Reidentify the dataset?
+                    dataset.getDataset().refreshIdentify();
+                    InputOutput io = IOProvider.getDefault().getIO("Validate " + ProjectUtils.getInformation(dataset).getDisplayName(), true);
+                    io.select();
+                    io.getOut().print("Starting verification run: ");
+                    io.getOut().println(fmt.format(new Date()));
+                    boolean whoCares = dataset.getDataset().validateDataset(io.getOut(), io.getErr());
+                    io.getOut().println("----------------------------------------");
+                    if (whoCares) {
+                        if (IOColorLines.isSupported(io)) {
+                            try {
+                            IOColorLines.println(io, "DATASET VALIDATED SUCCESSFULLY", Color.GREEN);
+                            } catch (IOException ex) {}
+                        } else {
+                            io.getOut().println("DATASET VALIDATED SUCCESSFULLY");
+                        }
+                    } else {
+                        io.getErr().println("DATASET VALIDATION FAILED");
+                    }
+                    io.getOut().println("----------------------------------------");
+                    io.getOut().close();
+                    io.getErr().close();
+                });
+                handle.finish();
+                return null;
+            }
+        };
+        worker.execute();
+    }//GEN-LAST:event_btnValidateDatasetActionPerformed
+
+    private void btnPackageDatasetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPackageDatasetActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnPackageDatasetActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnPackageDataset;
+    private javax.swing.JButton btnValidateDataset;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
@@ -141,11 +235,14 @@ public final class RIACropModelDatasetActionsTopComponent extends TopComponent i
     @Override
     public void resultChanged(LookupEvent ev) {
         StringBuilder sb = new StringBuilder("<html>Project Details: ");
-
+        List<RIACropModelDataset> dsList = new ArrayList<>();
         if (!selectedDatasets.allInstances().isEmpty()) {
             selectedDatasets.allInstances().stream().forEach((next) -> {
-                sb.append(ProjectUtils.getInformation(next).getDisplayName());
-                sb.append(next.getDataset().datasetStatisticsHTML());
+                if(! dsList.contains(next)) {
+                    sb.append(ProjectUtils.getInformation(next).getDisplayName());
+                    sb.append(next.getDataset().datasetStatisticsHTML());
+                    dsList.add(next);
+                }
             });
         } else {
             sb.append("None");
