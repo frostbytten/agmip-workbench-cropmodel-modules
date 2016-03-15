@@ -30,14 +30,13 @@ package org.agmip.ui.workbench.modules.cropmodel.packaging.listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.logging.Level;
+import java.util.Arrays;
 import java.util.logging.Logger;
-import org.agmip.ui.workbench.modules.cropmodel.project.RIACropModelDataset;
-import org.agmip.ui.workbench.modules.cropmodel.project.lookup.RIACropModelDatasetSelectionLookup;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 @ActionID(
@@ -57,6 +56,12 @@ public final class SwitchToPackagingRole implements ActionListener {
         String currentRole = WindowManager.getDefault().getRole();
         if (currentRole == null || ! currentRole.equals("package")) {
             WindowManager.getDefault().setRole("package");
+        }
+        Mode editorMode = WindowManager.getDefault().findMode("editor");
+        TopComponent outputComponent = WindowManager.getDefault().findTopComponent("output");
+        
+        if (! Arrays.asList(editorMode.getTopComponents()).contains(outputComponent)) {
+          editorMode.dockInto(outputComponent);
         }
     }
 }

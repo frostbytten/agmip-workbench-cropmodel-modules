@@ -29,7 +29,9 @@
 package org.agmip.ui.workbench.modules.cropmodel.project;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Properties;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -45,38 +47,49 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Christopher Villalobos <cvillalobos@ufl.edu>
  */
-@ServiceProvider(service=ProjectFactory.class)
-public class RIACropModelDatasetFactory implements ProjectFactory2  {
-    public static final String RIADATASET_FILE = ".riadataset";
-    @StaticResource public static final String RIADATASET_ICON = "org/agmip/ui/workbench/modules/cropmodel/riacmdataset.png";
+@ServiceProvider(service = ProjectFactory.class)
+public class RIACropModelDatasetFactory implements ProjectFactory2 {
 
-    @Override
-    public boolean isProject(FileObject fo) {
-        File projectDir = FileUtil.toFile(fo);
-        // This isn't a local file
-        if (projectDir == null) {
-            return false;
-        }        
-        return fo.getFileObject(RIADATASET_FILE) != null;
-    }
+  public static final String RIADATASET_FILE = ".riadataset";
+  @StaticResource
+  public static final String RIADATASET_ICON = "org/agmip/ui/workbench/modules/cropmodel/riacmdataset.png";
 
-    @Override
-    public ProjectManager.Result isProject2(FileObject projectDirectory) {
-        if (isProject(projectDirectory)) {
-            return new ProjectManager.Result(ImageUtilities.loadImageIcon(RIADATASET_ICON, true));
-        }
-        return null;
+  @Override
+  public boolean isProject(FileObject fo) {
+    File projectDir = FileUtil.toFile(fo);
+    // This isn't a local file
+    if (projectDir == null) {
+      return false;
     }
-    
-    @Override
-    public Project loadProject(FileObject fo, ProjectState ps) throws IOException {
-        if (!isProject(fo)) {
-            return null;
-        }
-        return new RIACropModelDataset(fo, ps);
-    }
+    return fo.getFileObject(RIADATASET_FILE) != null;
+  }
 
-    // UNUSED FOR NOW
-    @Override
-    public void saveProject(Project prjct) throws IOException, ClassCastException {}
+  @Override
+  public ProjectManager.Result isProject2(FileObject projectDirectory) {
+    if (isProject(projectDirectory)) {
+      return new ProjectManager.Result(ImageUtilities.loadImageIcon(RIADATASET_ICON, true));
+    }
+    return null;
+  }
+
+  @Override
+  public Project loadProject(FileObject fo, ProjectState ps) throws IOException {
+    if (!isProject(fo)) {
+      return null;
+    }
+    return new RIACropModelDataset(fo, ps);
+  }
+
+  @Override
+  public void saveProject(Project prjct) throws IOException, ClassCastException {
+    if (isProject(prjct.getProjectDirectory())) {
+      FileObject fo = prjct.getProjectDirectory().getFileObject(RIADATASET_FILE);
+      if (fo == null) {
+        prjct.getProjectDirectory().createData(RIADATASET_FILE);
+      }
+      Properties props = (Properties) prjct.getLookup().lookup(Properties.class);
+      File f = FileUtil.toFile(fo);
+      props.store(new FileOutputStream(f), "RIA Crop Model Dataset Properties");
+    }
+  }
 }

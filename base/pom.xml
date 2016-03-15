@@ -9,8 +9,9 @@
     </parent>
     <groupId>org.agmip.ui.workbench.module</groupId>
     <artifactId>cropmodel-base</artifactId>
+    <version>1.0.3</version>
     <packaging>nbm</packaging>
-    <name>AgMIP Workbench Crop Model Base Module</name>
+    <name>AgMIP Workbench RIA Crop Model Base Module</name>
    
     <build>
         <plugins>
@@ -66,14 +67,9 @@
             <version>${netbeans.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.agmip.lib</groupId>
-            <artifactId>cropmodel-dataset</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-loaders</artifactId>
-            <version>RELEASE801</version>
+            <version>${netbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -124,6 +120,16 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-queries</artifactId>
             <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.agmip.lib</groupId>
+            <artifactId>cropmodel-dataset</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -26,39 +26,51 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.agmip.ui.workbench.modules.cropmodel.project;
+package org.agmip.ui.workbench.modules.cropmodel.project.customizer;
 
-import org.agmip.ui.workbench.modules.cropmodel.project.nodes.RIACropModelDatasetNode;
-import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
-import org.openide.nodes.Node;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
-/**
- *
- * @author Christopher Villalobos <cvillalobos@ufl.edu>
- */
-public class RIACropModelDatasetLV implements LogicalViewProvider {
+import org.netbeans.spi.project.ui.support.ProjectCustomizer;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
-    @StaticResource
-    public static final String RIA_PROJECT_ICON = "org/agmip/ui/workbench/modules/cropmodel/riacmdataset.png";
-    private final RIACropModelDataset dataset;
+public class RIACropModelDatasetPanelProvider
+  implements ProjectCustomizer.CompositeCategoryProvider {
 
-    public RIACropModelDatasetLV(RIACropModelDataset dataset) {
-        this.dataset = dataset;
+  private static final String GENERAL = "General";
+  private final String name;
+  
+  public RIACropModelDatasetPanelProvider(String name) {
+    this.name = name;
+  }
+  
+  @NbBundle.Messages("LBL_Config_General=General")
+  @Override
+  public Category createCategory(Lookup lookup) {
+    ProjectCustomizer.Category toReturn = ProjectCustomizer.Category.create(GENERAL,
+      Bundle.LBL_Config_General(),
+      null);
+    
+    assert toReturn != null : "No category for name: " + name;
+    return toReturn;
+  }
+
+  @Override
+  public JComponent createComponent(Category category, final Lookup context) {
+    final RIACropModelDatasetProperties props = context.lookup(RIACropModelDatasetProperties.class);
+    String nm = category.getName();
+    if (GENERAL.equals(name)) {
+      return new CustomizerGeneral(props);
     }
-
-    @Override
-    public Node createLogicalView() {
-        FileObject datasetFO = this.dataset.getProjectDirectory();
-        DataFolder datasetFolder = DataFolder.findFolder(datasetFO);
-        Node node = datasetFolder.getNodeDelegate();
-        return new RIACropModelDatasetNode(node, dataset);
-    }
-
-    @Override
-    public Node findPath(Node node, Object o) {
-        return null;
-    }
+    return new JPanel();
+  }
+  
+  @ProjectCustomizer.CompositeCategoryProvider.Registration(
+    projectType = "agmip-workbench-cropmodel-riadataset",
+    position = 100)
+  public static RIACropModelDatasetPanelProvider createGeneral() {
+    return new RIACropModelDatasetPanelProvider(GENERAL);
+  }
 }
